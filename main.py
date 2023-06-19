@@ -24,20 +24,12 @@ def created_test():
     paragraph_words=cleaned_paragraph.split()
     print(paragraph.upper())
 
-def gui_app():
-    global input_paragraph
-    root=tk.Tk()
-    root.title("Typing Speed Test App")
-    root.geometry("900x660")
-    tk.Label(root, text=paragraph, compound=tk.CENTER, font=("Arial",30)).grid(row=0, column=0, rowspan=2, columnspan=10, padx=120, pady=60)
-    input_paragraph=tk.Entry(root, font=("Arial", 20), width=50)
-    input_paragraph.grid(row=2,column=0,columnspan=10, rowspan=2)
-    root.mainloop()
 
 
 
 def check_input_paragraph(paragraph_words, input_paragraph):
     global input_words, error_value, correct_value, true_words, colored_letter
+    colored_letter=""
     input_words=input_paragraph.split()
     if len(paragraph_words)==len(input_words):
         for i in range(len(input_words)):
@@ -55,49 +47,46 @@ def check_input_paragraph(paragraph_words, input_paragraph):
                     true_words+=1
             elif len(input_word)>len(paragraph_word):
                 print("You entered extra letters. Your error value increased by 2 points per letter :(\n")
-                colored_letter=colored(paragraph,"red")
+                colored_letter+=" "+colored(input_word,"red")
                 error_value+=2*(len(input_word)-len(paragraph_word))
             elif len(input_word)<len(paragraph_word):
                 print("You entered missing letters. Your error value increased by 2 points per letter :(\n")
-                colored_letter=colored(paragraph,"red")
+                colored_letter+=" "+colored(input_word,"red")
                 error_value+=2*(len(paragraph_word)-len(input_word))
             i+=1
+        print(colored_letter)
     elif len(paragraph_words)<len(input_words) :
-        print("You entered extra words. Your error value increased by 10 points per word :(\n")
+        print("You entered extra words. Sentence is completely wrong :(\n")
         colored_letter=colored(paragraph,"red")
         print(colored_letter)
         error_value+=10*(len(input_words)-len(paragraph_words))
     elif len(paragraph_words)>len(input_words) :
         colored_letter=colored(paragraph,"red")
         print(colored_letter)
-        print("You entered missing words. Your error value increased by 10 points per word :(\n")
+        print("You entered missing words. Sentence is completely wrong :(\n")
         error_value+=10*(len(paragraph_words)-len(input_words))
 
 
-            
 root=tk.Tk()
-root.title("Typing Speed Test App")
-root.geometry("900x660")
+root.geometry("1060x700")
 
-while time.time()-star_time<5:
+
+
+while time.time()-star_time<20:
     created_test()
-    tk.Label(root, text=paragraph, compound=tk.CENTER, font=("Arial",30)).grid(row=0, column=0, rowspan=2, columnspan=10, padx=120, pady=60)
-    input_paragraph=str(tk.Entry(root, font=("Arial", 20), width=50))
-    input_paragraph.grid(row=2,column=0,columnspan=10, rowspan=2)
+    input_paragraph=input()
     paragraph_length+=len(paragraph)
     check_input_paragraph(paragraph_words, input_paragraph)
-    print(colored_letter)
-    root.mainloop()
     
 
-error_percent=(error_value/paragraph_length)*100
+error_percent=(error_value/(error_value+correct_value))*100
 end_time=time.time()
 taken_time=end_time-star_time
-print(round(error_percent,2))
-print(correct_value)
+print(f"error percent: %{round(error_percent,2)}\n")
+print(f"correct value: {correct_value}\n")
 word_per_second=true_words/taken_time
-print(true_words)
-print(round(word_per_second,2))
+print(f"true words:{true_words}\n")
+print(f"true word per second: {round(word_per_second,2)}\n")
 
 
 
