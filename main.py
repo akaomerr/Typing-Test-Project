@@ -47,12 +47,12 @@ def check_input_paragraph(paragraph_words, input_paragraph):
                     true_words+=1
             elif len(input_word)>len(paragraph_word):
                 colored_label.config(text="")
-                colored_label.config(text="You entered extra letters. Your error value increased by 2 points per letter :(")
+                colored_label.config(text="You entered extra letters. Your error value increased by 2 points per letter :(", fg="red")
                 colored_letter+=" "+colored(input_word,"red")
                 error_value+=2*(len(input_word)-len(paragraph_word))
             elif len(input_word)<len(paragraph_word):
                 colored_label.config(text="")
-                colored_label.config(text="You entered missing letters. Your error value increased by 2 points per letter :(")
+                colored_label.config(text="You entered missing letters. Your error value increased by 2 points per letter :(", fg="red")
                 colored_letter+=" "+colored(input_word,"red")
                 error_value+=2*(len(paragraph_word)-len(input_word))
             i+=1
@@ -60,7 +60,7 @@ def check_input_paragraph(paragraph_words, input_paragraph):
     elif len(paragraph_words)<len(input_words) :
         colored_label.config(text="")
         print("You entered extra words. Sentence is completely wrong :(\n")
-        colored_label.config(text="You entered extra words. Sentence is completely wrong :(")
+        colored_label.config(text="You entered extra words. Sentence is completely wrong :(", fg="red")
         colored_letter=colored(paragraph,"red")
         print(colored_letter)
         error_value+=10*(len(input_words)-len(paragraph_words))
@@ -68,7 +68,7 @@ def check_input_paragraph(paragraph_words, input_paragraph):
         colored_label.config(text="")
         colored_letter=colored(paragraph,"red")
         print(colored_letter)
-        colored_label.config(text="You entered missing words. Sentence is completely wrong :(")
+        colored_label.config(text="You entered missing words. Sentence is completely wrong :(", fg="red")
         error_value+=10*(len(paragraph_words)-len(input_words))
 
 
@@ -79,25 +79,32 @@ def check_input_paragraph(paragraph_words, input_paragraph):
 root=tk.Tk()
 root.geometry("1200x700")
 root.configure(bg="#F5EFE7")
+counter=60
 
 paragraph_label=tk.Label(root, text=paragraph.upper(), font=("Arial",30), fg="#4F709C", bg="#F5EFE7", pady=30)
 paragraph_label.grid(row=0, column=0, rowspan=1, columnspan=10, sticky="nsew")
 
-caution_label=tk.Label(root, text="!Do not pay attention to punctuation marks, write hyphenated words together!", font=("Arial", 20), fg="#E55807", pady=30,  bg="#F5EFE7")
-caution_label.grid(row=1, column=0, rowspan=1, columnspan=10)
+timer_label=tk.Label(root, font=("Arial", 20), width=10, bg="#F5EFE7")
+timer_label.grid(row=1, column=0, sticky="nsew")
 
-colored_label=tk.Label(root, font=("Arial",15), bg="#F5EFE7", pady=30)
-colored_label.grid(row=3, column=0, rowspan=1, columnspan=10, pady=100)
+
+caution_label=tk.Label(root, text="!Do not pay attention to punctuation marks, write hyphenated words together!", font=("Arial", 20), fg="#E55807", pady=30,  bg="#F5EFE7")
+caution_label.grid(row=2, column=0, rowspan=1, columnspan=10)
+
+colored_label=tk.Label(root, font=("Arial",15), bg="#F5EFE7")
+colored_label.grid(row=4, column=0, rowspan=1, columnspan=10, pady=20)
 
 input_sentence=tk.Entry(root, width=100, font=40, justify="center")
-input_sentence.grid(row=2, column=0, rowspan=1, columnspan=10, pady=30)
+input_sentence.grid(row=3, column=0, rowspan=1, columnspan=10, pady=30)
 root.columnconfigure(0, weight=1) 
 
+look_up_label=tk.Label(root, font=("Arial",20), bg="#F5EFE7", pady=20)
+look_up_label.grid(row=5, column=0)
 
 
 
-def enter_to_off():
-    root.destroy()
+
+
 
 
 
@@ -109,23 +116,56 @@ def entry_func(event):
     paragraph_length+=len(paragraph)
     paragraph_label.config(text=paragraph.upper())
     input_sentence.delete(0,tk.END)
+    error_percent=(error_value/(error_value+correct_value))*100
+    end_time=time.time()
+    taken_time=end_time-star_time
+    word_per_second=true_words/taken_time
+    if time.time()-star_time>60:
+        look_up_label.grid_remove()
+        error_label=tk.Label(root, font=("Arial",20), bg="#F5EFE7", pady=20, text=f"Error Percent: %{round(error_percent,2)}", fg="#F45050")
+        error_label.grid(row=5, column=0)
+        correct_label=tk.Label(root, font=("Arial",20), bg="#F5EFE7", pady=20, text=f"Correct Point: {correct_value}", fg="#1F8A70")
+        correct_label.grid(row=6, column=0)
+        true_words_label=tk.Label(root, font=("Arial",20), bg="#F5EFE7", pady=20, text=f"True Words Value: {true_words}", fg="#1F8A70")
+        true_words_label.grid(row=7, column=0)
+        word_per_second_label=tk.Label(root, font=("Arial",20), bg="#F5EFE7", pady=20, text=f"True Word Per Second: {word_per_second}", fg="#539165")
+        word_per_second_label.grid(row=8, column=0)
+
+
+
+
+def update_counter():
+    global counter
+    timer_label.config(text=f"Timer: {str(counter)}")
+    if counter>0:
+        counter-=1
+        timer_label.after(1000, update_counter)
+    if counter==0:
+        look_up_label.config( text="Press Enter To See The Results")
+        timer_label.config(text="Time's Up!")
+        input_sentence.config(state=tk.DISABLED)
+
+
+
 
 
 
 
 created_test()
+
 input_sentence.bind("<Return>", entry_func)
 paragraph_length+=len(paragraph)
 paragraph_label.config(text=paragraph.upper())
+update_counter()
 root.mainloop()
 
 
 error_percent=(error_value/(error_value+correct_value))*100
 end_time=time.time()
 taken_time=end_time-star_time
+word_per_second=true_words/taken_time
 print(f"error percent: %{round(error_percent,2)}\n")
 print(f"correct value: {correct_value}\n")
-word_per_second=true_words/taken_time
 print(f"true words:{true_words}\n")
 print(f"true word per second: {round(word_per_second,2)}\n")
 
