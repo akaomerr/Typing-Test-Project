@@ -77,6 +77,7 @@ def check_input_paragraph(paragraph_words, input_paragraph):
 
 
 root=tk.Tk()
+root.title("Typing Speed Test")
 root.geometry("1200x700")
 root.configure(bg="#F5EFE7")
 counter=60
@@ -120,19 +121,26 @@ def entry_func(event):
     end_time=time.time()
     taken_time=end_time-star_time
     word_per_second=true_words/taken_time
-    if time.time()-star_time>60:
-        look_up_label.grid_remove()
-        error_label=tk.Label(root, font=("Arial",20), bg="#F5EFE7", pady=20, text=f"Error Percent: %{round(error_percent,2)}", fg="#F45050")
-        error_label.grid(row=5, column=0)
-        correct_label=tk.Label(root, font=("Arial",20), bg="#F5EFE7", pady=20, text=f"Correct Point: {correct_value}", fg="#1F8A70")
-        correct_label.grid(row=6, column=0)
-        true_words_label=tk.Label(root, font=("Arial",20), bg="#F5EFE7", pady=20, text=f"True Words Value: {true_words}", fg="#1F8A70")
-        true_words_label.grid(row=7, column=0)
-        word_per_second_label=tk.Label(root, font=("Arial",20), bg="#F5EFE7", pady=20, text=f"True Word Per Second: {word_per_second}", fg="#539165")
-        word_per_second_label.grid(row=8, column=0)
 
-
-
+def button_clicked():
+    look_up_label.grid_remove()
+    timer_label.grid_remove()
+    global paragraph_length
+    paragraph_length+=len(paragraph)
+    paragraph_label.config(text=paragraph.upper())
+    input_sentence.delete(0,tk.END)
+    error_percent=(error_value/(error_value+correct_value))*100
+    end_time=time.time()
+    taken_time=end_time-star_time
+    word_per_second=true_words/taken_time
+    error_label=tk.Label(root, font=("Arial",20), bg="#F5EFE7", pady=20, text=f"Error Percent: %{round(error_percent,2)}", fg="#F45050")
+    error_label.grid(row=5, column=0, pady=20)
+    correct_label=tk.Label(root, font=("Arial",20), bg="#F5EFE7", pady=20, text=f"Correct Point: {correct_value}", fg="#1F8A70")
+    correct_label.grid(row=6, column=0, pady=20)
+    true_words_label=tk.Label(root, font=("Arial",20), bg="#F5EFE7", pady=20, text=f"True Words Value: {true_words}", fg="#1F8A70")
+    true_words_label.grid(row=7, column=0, pady=20)
+    word_per_second_label=tk.Label(root, font=("Arial",20), bg="#F5EFE7", pady=20, text=f"True Word Per Second: {round(word_per_second,2)}", fg="#539165")
+    word_per_second_label.grid(row=8, column=0, pady=20)
 
 def update_counter():
     global counter
@@ -140,10 +148,19 @@ def update_counter():
     if counter>0:
         counter-=1
         timer_label.after(1000, update_counter)
-    if counter==0:
-        look_up_label.config( text="Press Enter To See The Results")
-        timer_label.config(text="Time's Up!")
+    else:
+        look_up_label.config(text="Press Button To See The Results")
+        timer_label.config(text="Time's Up!", fg="red", pady=50)
+        paragraph_label.grid_remove()
+        caution_label.grid_remove()
+        colored_label.grid_remove()
+        input_sentence.grid_remove()
         input_sentence.config(state=tk.DISABLED)
+        button=tk.Button(root, text=("Show Results"), command=button_clicked)
+        button.grid(row=6, column=0)
+
+def entry_focus(event):
+    input_sentence.focus()
 
 
 
@@ -152,22 +169,13 @@ def update_counter():
 
 
 created_test()
-
+root.bind("<Map>", entry_focus)
 input_sentence.bind("<Return>", entry_func)
 paragraph_length+=len(paragraph)
 paragraph_label.config(text=paragraph.upper())
 update_counter()
 root.mainloop()
 
-
-error_percent=(error_value/(error_value+correct_value))*100
-end_time=time.time()
-taken_time=end_time-star_time
-word_per_second=true_words/taken_time
-print(f"error percent: %{round(error_percent,2)}\n")
-print(f"correct value: {correct_value}\n")
-print(f"true words:{true_words}\n")
-print(f"true word per second: {round(word_per_second,2)}\n")
 
 
 
